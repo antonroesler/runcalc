@@ -1,5 +1,7 @@
 import datetime
 
+from helper import pace_formatter
+
 distances = {
     'm': 1,
     'meters': 1,
@@ -14,16 +16,9 @@ distances = {
 def _get_meters(**kwargs):
     for kw in kwargs:
         if factor := distances.get(kw):
-            return factor * kwargs.get(kw)
+            if kwargs.get(kw) is not None:
+                return factor * kwargs.get(kw)
     return None
-
-
-def _get_time(**kwargs):
-    h = kwargs.get('hours', 0)
-    m = kwargs.get('minutes', 0)
-    s = kwargs.get('seconds', 0)
-    t = datetime.timedelta(hours=h, minutes=m, seconds=s)
-    return t if t.total_seconds() > 0 else None
 
 
 def count_args(data):
@@ -38,7 +33,7 @@ def count_args(data):
 class Run:
     def __init__(self, **kwargs):
         self.meters: float = _get_meters(**kwargs)
-        self.time: datetime.timedelta = _get_time(**kwargs)
+        self.time: datetime.timedelta = kwargs.get('time')
         self.pace: datetime.timedelta = kwargs.get('pace')
 
         if count_args([self.meters, self.time, self.pace]) > 2:
@@ -48,10 +43,13 @@ class Run:
 
         if self.meters is None:
             self._calc_meters()
+            self.miss = 1
         if self.time is None:
             self._calc_time()
+            self.miss = 2
         if self.pace is None:
             self._calc_pace()
+            self.miss = 3
 
     @property
     def minutes(self):
@@ -68,6 +66,27 @@ class Run:
 
     def _calc_time(self):
         self.time = datetime.timedelta(seconds=(self.meters / 1000) * self.pace.total_seconds())
+
+    def overview(self):
+        print("===== RUN =====")
+        print(f"DISTANCE: {round(self.meters)} meters")
+        print(f"TIME: {pace_formatter(self.time.total_seconds())}")
+        print(f"PACE: {pace_formatter(self.pace.total_seconds())}")
+
+    @property
+    def missing(self):
+        if self.miss == 1:
+            return self.meters
+        if self.miss == 2:
+            return self.time
+        else:
+            return self.pace
+
+    def missing_formatted(self):
+        if self.miss == 1:
+            return str(round(self.meters)) + " meters"
+        else:
+            return pace_formatter(self.missing.total_seconds())
 
 
 class TooManyArguments(Exception):
