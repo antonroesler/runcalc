@@ -1,6 +1,6 @@
 import click
 
-from helper import time_formatter
+from helper import time_formatter, get_distance
 from main import Run
 
 
@@ -14,15 +14,13 @@ def cli(d, t, du, p, l):
     t = time_formatter(t)
     p = time_formatter(p)
     if d:
-        d = float(d)
+        d, du = get_distance(d, du)
     kwargs = {du:d, 'time': t, 'pace': p}
     run = Run(**kwargs)
     if l:
         run.overview()
     else:
         print(run.missing_formatted())
-
-
 
 if __name__ == '__main__':
     cli()

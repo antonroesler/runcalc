@@ -148,3 +148,4 @@ def test_get_missing_formatted():
 
     run = Run(time=datetime.timedelta(minutes=60), m=15000)
     assert run.missing_formatted() == "4m 0s"
+
