@@ -9,7 +9,7 @@ from main import Run
 @click.option('-t', help='Time', default=None)
 @click.option('-p', help='Pace', default=None)
 @click.option('-o', help='Pace', default='km')
-@click.option('-du', help='Unit of Distance, default m (meters), options are: miles, km', default='m')
+@click.option('-du', help='Unit of Distance, default m (meters), options are: miles, km', default='km')
 @click.option('-l', help='Pace', is_flag=True)
 def cli(d, t, du, p, l, o):
     t = time_formatter(t)

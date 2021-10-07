@@ -42,6 +42,7 @@ distances = {
     '5k': 5000,
     '10K': 10000,
     '5K': 5000,
+    '10M': 16093.44,
     '1M': 1609.344
 }
 def get_distance(distance: str, distance_unit: str):
