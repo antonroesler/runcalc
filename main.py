@@ -35,6 +35,7 @@ class Run:
         self.meters: float = _get_meters(**kwargs)
         self.time: datetime.timedelta = kwargs.get('time')
         self.pace: datetime.timedelta = kwargs.get('pace')
+        self.out = kwargs.get("out", "km")
 
         if count_args([self.meters, self.time, self.pace]) > 2:
             raise TooManyArguments
@@ -55,10 +56,13 @@ class Run:
     def minutes(self):
         return self.time.total_seconds() / 60
 
+    @property
+    def pace_miles(self):
+        pace = (self.time.total_seconds() * 1609.344) / self.meters
+        return datetime.timedelta(seconds=pace)
+
     def _calc_pace(self):
-        sec = self.time.total_seconds()
-        p_s_m = sec / self.meters
-        pace = p_s_m * 1000
+        pace = (self.time.total_seconds() * 1000) / self.meters
         self.pace = datetime.timedelta(seconds=pace)
 
     def _calc_meters(self):
@@ -69,17 +73,25 @@ class Run:
 
     def overview(self):
         print("===== RUN =====")
-        print(f"DISTANCE: {round(self.meters)} meters")
+        print(f"DISTANCE: {round(self.meters / 1000, 1)} KM")
+        print(f"DISTANCE: {round(self.meters / 1609.344, 1)} Miles")
         print(f"TIME: {pace_formatter(self.time.total_seconds())}")
-        print(f"PACE: {pace_formatter(self.pace.total_seconds())}")
+        print(f"PACE: {pace_formatter(self.pace.total_seconds())} per KM")
+        print(f"PACE: {pace_formatter(self.pace_miles.total_seconds())} per Mile")
 
     @property
     def missing(self):
         if self.miss == 1:
+            if self.out == "km":
+                return round(self.meters / 1000, 1)
+            if self.out == "miles":
+                return round(self.meters / 1609.344, 1)
             return self.meters
         if self.miss == 2:
             return self.time
         else:
+            if self.out == "miles":
+                return self.pace_miles
             return self.pace
 
     def missing_formatted(self):

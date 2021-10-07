@@ -134,7 +134,7 @@ def test_get_missing():
     assert round(run.missing.total_seconds()) == 47*60 + 48
 
     run = Run(time=datetime.timedelta(minutes=60), pace=datetime.timedelta(minutes=4, seconds=44))
-    assert round(run.missing) == 12676
+    assert run.missing == 12.7
 
     run = Run(time=datetime.timedelta(minutes=60), m=15000)
     assert run.missing == datetime.timedelta(minutes=4)
@@ -149,3 +149,11 @@ def test_get_missing_formatted():
     run = Run(time=datetime.timedelta(minutes=60), m=15000)
     assert run.missing_formatted() == "4m 0s"
 
+def test_pace_in_miles_unit():
+    run = Run(km=21, time=datetime.timedelta(hours=1, minutes=30))
+    assert round(run.pace.total_seconds()) == datetime.timedelta(minutes=4, seconds=17).total_seconds()
+    assert round(run.pace_miles.total_seconds()) == datetime.timedelta(minutes=6, seconds=54).total_seconds()
+
+def test_pace_in_miles_unit_as_output():
+    run = Run(km=10, time=datetime.timedelta(hours=0, minutes=42, seconds=33), out='miles')
+    assert run.missing_formatted() == "6m 50s"
